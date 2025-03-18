@@ -8,7 +8,7 @@ from config import UPLOAD_FOLDER, RESULT_FOLDER, WEIGHS_PATH
 
 app = Flask(__name__)
 
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}  # Разрешенные расширения файлов
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 result_url = "/result"
 
@@ -16,6 +16,7 @@ def allowed_file(filename):
     """Проверка расширения файла"""
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# Загружаем модель ИИ
 ai_photo_interpreter = ModelAI(weights_path=WEIGHS_PATH)
 
 @app.post("/handle_photo")
@@ -25,7 +26,6 @@ def photo_handle_route():
         return jsonify({'error': 'query param "session: is required'}), 400
 
     if request.method == 'POST':
-        # Проверка наличия файла в запросе
         if 'photo' not in request.files:
             return jsonify({'error': 'No file part'}), 400
         file = request.files['photo']
@@ -44,7 +44,7 @@ def photo_handle_route():
 
 
         try:
-            # запускаем обработку фотографии через нейронку
+            # запускаем обработку фотографии через ИИ
             result_data, image_name = ai_photo_interpreter.get_result(session, filepath)
             file_url = result_url + "/" + image_name
             result = {"result_data": result_data, "image_url": file_url}
